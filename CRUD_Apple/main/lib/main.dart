@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
       body: FutureBuilder(
         future: getDevice(),
         builder: (context, snapshot) {
-          return Text("Hola");
+          return Text("Buenaps");
         },
       ),
     );
