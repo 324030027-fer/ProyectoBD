@@ -1,30 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-FirebaseFirestore db = FirebaseFirestore.instance;
+class FirebaseService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Obtener todos los dispositivos
 Future<List<Map<String, dynamic>>> getDevices() async {
-  try {
-    print("Obteniendo dispositivos de Firestore...");
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('HHH1') // Ajusta este nombre a tu colección real
-        .get();
-
-    print("Número de documentos obtenidos: ${querySnapshot.docs.length}");
-    
-    if (querySnapshot.docs.isEmpty) {
-      print("La colección está vacía");
-      return [];
+  final querySnapshot = await FirebaseFirestore.instance.collection('devices').get();
+  return querySnapshot.docs.map((doc) {
+    final data = doc.data();
+    data['id'] = doc.id; // Añadir el ID del documento
+    return data;
+  }).toList();
+}
+  // Añadir un nuevo dispositivo
+  Future<void> addDevice(Map<String, dynamic> device) async {
+    try {
+      await _firestore.collection('devices').add(device);
+    } catch (e) {
+      print("Error al añadir dispositivo: $e");
+      rethrow;
     }
+  }
 
-    final devices = querySnapshot.docs.map((doc) {
-      print("Documento ID: ${doc.id}");
-      print("Datos del documento: ${doc.data()}");
-      return doc.data();
-    }).toList();
+  // Actualizar un dispositivo
+  Future<void> updateDevice(String id, Map<String, dynamic> updates) async {
+    try {
+      await _firestore.collection('devices').doc(id).update(updates);
+    } catch (e) {
+      print("Error al actualizar dispositivo: $e");
+      rethrow;
+    }
+  }
 
-    return devices;
-  } catch (e) {
-    print("🔥 Error fatal al obtener dispositivos: $e 🔥");
-    return [];
+  // Eliminar un dispositivo
+  Future<void> deleteDevice(String id) async {
+    try {
+      await _firestore.collection('devices').doc(id).delete();
+    } catch (e) {
+      print("Error al eliminar dispositivo: $e");
+      rethrow;
+    }
   }
 }
